@@ -8,14 +8,14 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
   const [leads, setLeads] = useState(initialLeads);
   useEffect(() => { setLeads(initialLeads); }, [initialLeads]);
 
-  const [editingLead, setEditingLead]   = useState(null);
-  const [editForm, setEditForm]         = useState({});
-  const [loading, setLoading]           = useState(false);
-  const [agents, setAgents]             = useState([]);
+  const [editingLead, setEditingLead] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [agents, setAgents] = useState([]);
   const [assigningLead, setAssigningLead] = useState(null);
   const [timelineLead, setTimelineLead] = useState(null); // lead._id for timeline drawer
-  const { data: session }               = useSession();
-  const [toasts, setToasts]             = useState([]);
+  const { data: session } = useSession();
+  const [toasts, setToasts] = useState([]);
 
   const addToast = (message, type = "info") => {
     const id = Date.now();
@@ -65,7 +65,7 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
   // ── DELETE ────────────────────────────────────────────────
   const handleDelete = async (id) => {
     if (!confirm("Delete this lead?")) return;
-    await fetch(`/api/leads/${id}`, { method: "DELETE" });
+    await fetch(`/api/lead/${id}`, { method: "DELETE" });
     setLeads(prev => prev.filter(l => String(l._id) !== String(id)));
   };
 
@@ -75,7 +75,7 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
     setEditForm({
       name: lead.name, email: lead.email, phone: lead.phone,
       propertyInterest: lead.propertyInterest, budget: lead.budget,
-      score: lead.score, status: lead.status,
+      score: lead.score, status: lead.status, notes: lead.notes || "",
     });
   };
 
@@ -114,9 +114,9 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
         {toasts.map(t => (
           <div key={t.id} className={`px-4 py-3 rounded-lg text-sm font-medium shadow-lg transition-all
-            ${t.type === "green"  ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-300" :
-              t.type === "yellow" ? "bg-yellow-500/20  border border-yellow-500/40  text-yellow-300"  :
-                                    "bg-blue-500/20    border border-blue-500/40    text-blue-300"}`}>
+            ${t.type === "green" ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-300" :
+              t.type === "yellow" ? "bg-yellow-500/20  border border-yellow-500/40  text-yellow-300" :
+                "bg-blue-500/20    border border-blue-500/40    text-blue-300"}`}>
             {t.message}
           </div>
         ))}
@@ -138,15 +138,15 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
       {/* ── EDIT MODAL ── */}
       {editingLead && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1c212c] border border-gray-700 rounded-xl w-full max-w-lg p-6">
+          <div className="bg-[#1c212c] border border-gray-700 rounded-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-white font-semibold text-lg mb-5">Edit Lead</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { label: "Name",              key: "name" },
-                { label: "Email",             key: "email" },
-                { label: "Phone",             key: "phone" },
+                { label: "Name", key: "name" },
+                { label: "Email", key: "email" },
+                { label: "Phone", key: "phone" },
                 { label: "Property Interest", key: "propertyInterest" },
-                { label: "Budget",            key: "budget", type: "number" },
+                { label: "Budget", key: "budget", type: "number" },
               ].map(({ label, key, type = "text" }) => (
                 <div key={key} className={key === "propertyInterest" ? "col-span-2" : ""}>
                   <label className="text-gray-400 text-xs uppercase tracking-wider block mb-1">{label}</label>
@@ -169,8 +169,18 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
                 <label className="text-gray-400 text-xs uppercase tracking-wider block mb-1">Status</label>
                 <select value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })}
                   className="w-full bg-[#0f111a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-yellow-500">
-                  <option>New</option><option>Contacted</option><option>Interested</option><option>Closed</option>
+                  <option>New</option><option>Contacted</option><option>In Progress</option><option>Closed</option>
                 </select>
+              </div>
+              <div className="col-span-2">
+                <label className="text-gray-400 text-xs uppercase tracking-wider block mb-1">Notes</label>
+                <textarea
+                  rows={3}
+                  value={editForm.notes || ""}
+                  onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
+                  placeholder="Internal notes about this lead..."
+                  className="w-full bg-[#0f111a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-yellow-500 transition-colors resize-none"
+                />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
@@ -188,8 +198,8 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
       )}
 
       {/* ── TABLE ── */}
-      <div className="bg-[#1c212c] rounded-xl border border-gray-800 overflow-hidden">
-        <table className="w-full text-left">
+      <div className="bg-[#1c212c] rounded-xl border border-gray-800 overflow-x-auto">
+        <table className="w-full text-left min-w-[800px]">
           <thead className="bg-[#161922] text-gray-400 text-xs uppercase">
             <tr>
               <th className="p-4">Lead Name</th>
@@ -204,15 +214,15 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
           </thead>
           <tbody className="divide-y divide-gray-800">
             {leads.map(lead => {
-              const cleanPhone  = lead.phone?.replace(/\D/g, "");
-              const isOverdue   = lead.followUpDate && new Date(lead.followUpDate) < now && lead.status !== "Closed";
-              const isStale     = lead.lastActivityAt && new Date(lead.lastActivityAt) < sevenDaysAgo && lead.status !== "Closed";
+              const cleanPhone = lead.phone?.replace(/\D/g, "");
+              const isOverdue = lead.followUpDate && new Date(lead.followUpDate) < now && lead.status !== "Closed";
+              const isStale = lead.lastActivityAt && new Date(lead.lastActivityAt) < sevenDaysAgo && lead.status !== "Closed";
 
               return (
                 <tr key={lead._id} className={`transition-colors text-sm
                   ${isOverdue ? "bg-red-500/5 border-l-2 border-l-red-500" :
-                    isStale   ? "bg-yellow-500/5 border-l-2 border-l-yellow-500" :
-                                "hover:bg-[#1f2431]"}`}>
+                    isStale ? "bg-yellow-500/5 border-l-2 border-l-yellow-500" :
+                      "hover:bg-[#1f2431]"}`}>
 
                   {/* NAME */}
                   <td className="p-4">
@@ -228,9 +238,9 @@ export default function LeadTable({ leads: initialLeads, isAdmin = false }) {
                   {/* PRIORITY */}
                   <td className="p-4">
                     <span className={`px-2 py-1 rounded text-[10px] font-bold
-                      ${lead.score === "High"   ? "bg-red-500/10 text-red-500" :
+                      ${lead.score === "High" ? "bg-red-500/10 text-red-500" :
                         lead.score === "Medium" ? "bg-orange-500/10 text-orange-500" :
-                                                  "bg-gray-500/10 text-gray-400"}`}>
+                          "bg-gray-500/10 text-gray-400"}`}>
                       ● {lead.score}
                     </span>
                   </td>

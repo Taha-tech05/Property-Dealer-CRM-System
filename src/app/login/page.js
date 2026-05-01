@@ -66,10 +66,18 @@ export default function LoginPage() {
       </div>
 
       {/* RIGHT PANEL */}
-      <div className="flex-1 flex items-center justify-center px-8 py-12 border-l border-[#1e2330]">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 md:border-l border-[#1e2330]">
         <div className="w-full max-w-sm">
 
-          <div className="flex items-center gap-2 text-[#c9a84c] text-lg font-bold mb-10">
+          <div className="flex md:hidden items-center justify-center gap-2 text-[#c9a84c] text-lg font-bold mb-10">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              <polyline points="9,22 9,12 15,12 15,22" />
+            </svg>
+            PropCRM
+          </div>
+
+          <div className="hidden md:flex items-center gap-2 text-[#c9a84c] text-lg font-bold mb-10">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
               <polyline points="9,22 9,12 15,12 15,22" />

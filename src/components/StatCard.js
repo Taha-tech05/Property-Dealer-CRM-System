@@ -4,7 +4,8 @@ export default function StatCard({ label, value, trend, color }) {
     emerald: "text-emerald-500",
     red: "text-red-500",
     amber: "text-amber-500",
-    blue: "text-blue-500"
+    blue: "text-blue-500",
+    purple: "text-purple-500",
   };
 
   return (

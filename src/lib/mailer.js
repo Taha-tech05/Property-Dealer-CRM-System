@@ -30,6 +30,12 @@ export async function sendNewLeadEmail(lead) {
 }
 
 export async function sendAssignmentEmail(lead, agent) {
+  console.log("Sending assignment email to:", agent?.email, "| Agent:", agent?.name);
+
+  if (!agent?.email) {
+    console.error("No agent email provided:", agent);
+    return;
+  }
   await transporter.sendMail({
     from: `"PropCRM" <${process.env.EMAIL_USER}>`,
     to: agent.email,
@@ -45,7 +51,7 @@ export async function sendAssignmentEmail(lead, agent) {
           <tr><td style="color:#9ca3af;padding:8px 0">Budget</td><td>Rs ${lead.budget?.toLocaleString()}</td></tr>
           <tr><td style="color:#9ca3af;padding:8px 0">Property</td><td>${lead.propertyInterest}</td></tr>
         </table>
-        <a href="${process.env.NEXTAUTH_URL}/agent" style="display:inline-block;margin-top:20px;background:#eab308;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold">
+        <a href="${process.env.NEXTAUTH_URL}/agent/dashboard" style="display:inline-block;margin-top:20px;background:#eab308;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold">
           View Lead
         </a>
       </div>
